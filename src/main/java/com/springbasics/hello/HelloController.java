@@ -1,4 +1,4 @@
-package com.springbasics;
+package com.springbasics.hello;
 
 import org.springframework.web.bind.annotation.*;
 
