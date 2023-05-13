@@ -1,15 +1,16 @@
 package com.springbasics.task;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Task {
 
     private int id;
     private String name;
-    private Date dueDate;
+    private LocalDate dueDate;
     private boolean isCompleted;
 
-    public Task(int id, String name, Date dueDate, boolean isCompleted) {
+    public Task(int id, String name, LocalDate dueDate, boolean isCompleted) {
         this.id = id;
         this.name = name;
         this.dueDate = dueDate;
@@ -32,11 +33,11 @@ public class Task {
         this.name = name;
     }
 
-    public Date getDueDate() {
+    public LocalDate getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(Date dueDate) {
+    public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
 
