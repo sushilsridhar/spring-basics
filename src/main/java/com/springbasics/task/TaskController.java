@@ -1,6 +1,8 @@
 package com.springbasics.task;
 
-import org.apache.coyote.Response;
+import com.springbasics.task.dto.CreateTaskDTO;
+import com.springbasics.task.dto.UpdateTaskDTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,80 +15,49 @@ import java.util.Optional;
 @RequestMapping("/task")
 public class TaskController {
 
-    private ArrayList<Task> taskList = new ArrayList<>();
-    private int currentTaskId = 1;
+    private TaskService taskService;
+
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Task>> getAllTask() {
-        //return taskList;
+        ArrayList<Task> taskList = taskService.getAllTask();
+        return ResponseEntity.ok(taskList);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable("id") int taskId) {
-
-        Optional<Task> optionalTask = taskList.stream()
-                .filter(t -> t.getId() == taskId)
-                .findFirst();
-
-        if(optionalTask.isPresent()) {
-            return ResponseEntity.status(404).body(optionalTask.get());;
-        } else {
-            //return ResponseEntity.status(404).body("Task not found");
-        }
+        Task task = taskService.getTaskById(taskId);
+        return ResponseEntity.ok(task);
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task) {
-
-        if(task.getName().isEmpty()) {
-            return ResponseEntity.status(400).body();
-        }
-
-        LocalDate currentDate = LocalDate.now();
-        LocalDate taskDueDate = task.getDueDate();
-
-        if(taskDueDate.isBefore(currentDate)) {
-            return "Enter duedate after currentdate";//TODO 400
-        }
-
-        task.setId(currentTaskId);
-        taskList.add(task);
-        currentTaskId++;
-
-        return "Task Created";
+    public ResponseEntity<Task> createTask(@RequestBody CreateTaskDTO createTaskDTO) {
+        Task task = taskService.createTask(createTaskDTO.getName(), createTaskDTO.getDueDate());
+        return ResponseEntity.ok(task);
     }
 
-
-
     @PatchMapping("/{id}")
-    public String updateTask(@RequestBody Task task, @PathVariable("id") int taskId) {
-
-        Optional<Task> taskToBeUpdatedOptional = taskList.stream().filter(t -> t.getId() == taskId).findFirst();
-
-        if(taskToBeUpdatedOptional.isPresent()) {
-            Task taskTobeUpdated = taskToBeUpdatedOptional.get();
-
-            LocalDate currentDate = LocalDate.now();
-            LocalDate taskDueDate = task.getDueDate();
-
-            if(taskDueDate.isBefore(currentDate)) {
-                return "Enter duedate after currentdate";//TODO 400
-            }
-
-            taskTobeUpdated.setDueDate(task.getDueDate());
-            taskTobeUpdated.setCompleted(task.isCompleted());
-
-            return "Task updated";
-        }
-
-        return "Task not found";
+    public ResponseEntity<Task> updateTask(@PathVariable("id") int taskId, @RequestBody UpdateTaskDTO updateTaskDTO) {
+       Task task = taskService.updateTask(taskId, updateTaskDTO.getDueDate(), updateTaskDTO.getCompleted());
+       return ResponseEntity.ok(task);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteTask(@PathVariable("id") int taskId) {
+    public ResponseEntity<Void> deleteTask(@PathVariable("id") int taskId) {
+        taskService.deleteTask(taskId);
+        return ResponseEntity.ok().build();
+    }
 
-        // TODO can't remove elements from arraylist without index
+    @ExceptionHandler(TaskService.TaskNotFoundException.class)
+    public ResponseEntity<String> taskNotFoundExceptionHandler(TaskService.TaskNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
 
-        return "Task Deleted";
+    @ExceptionHandler(TaskService.InvalidInputException.class)
+    public ResponseEntity<String> invalidInputExceptionHandler(TaskService.InvalidInputException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 }

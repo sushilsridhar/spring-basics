@@ -1,22 +1,17 @@
-package com.springbasics.task;
+package com.springbasics.task.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
 
-
 @Getter
+@Setter
 @AllArgsConstructor
-public class Task {
+public class CreateTaskDTO {
 
-    private int id;
     private String name;
-
-    @Setter
     private Date dueDate;
-
-    @Setter
-    private Boolean completed;
 }
