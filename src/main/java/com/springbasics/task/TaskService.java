@@ -2,19 +2,58 @@ package com.springbasics.task;
 
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
 
-    private ArrayList<Task> taskList = new ArrayList<>();
+    private List<Task> taskList = new ArrayList<>();
     private int currentTaskId = 1;
 
-    public ArrayList<Task> getAllTask() {
+    public List<Task> getAllTask(TaskFilter taskFilter) {
+
+        if(taskFilter != null) {
+            List<Task> filteredList = taskList.stream()
+                    .filter(task -> {
+                        if (taskFilter.beforeDate != null && task.getDueDate().after(taskFilter.beforeDate)) {
+                            return false;
+                        }
+                        if (taskFilter.afterDate != null && task.getDueDate().before(taskFilter.afterDate)) {
+                            return false;
+                        }
+                        if (taskFilter.completed != null && task.getCompleted() != taskFilter.completed) {
+                            return false;
+                        }
+                        return true;
+                    }).collect(Collectors.toList());
+
+            if(taskFilter.sort != null && !taskFilter.sort.isEmpty()) {
+                if (taskFilter.sort.equalsIgnoreCase("AESC")) {
+                    filteredList.sort((t1, t2) -> {
+                        if (t1.getDueDate().equals(t2.getDueDate())) {
+                            return 0;
+                        } else if (t1.getDueDate().after(t2.getDueDate())) {
+                            return 1;
+                        }
+                        return -1;
+                    });
+                } else if (taskFilter.sort.equalsIgnoreCase("DESC")) {
+                    filteredList.sort((t1, t2) -> {
+                        if (t1.getDueDate().equals(t2.getDueDate())) {
+                            return 0;
+                        } else if (t1.getDueDate().after(t2.getDueDate())) {
+                            return -1;
+                        }
+                        return 1;
+                    });
+                }
+            }
+            return filteredList;
+        }
         return taskList;
     }
 
@@ -46,8 +85,10 @@ public class TaskService {
     public Task updateTask(int taskId, Date dueDate, Boolean completed) {
         Task task = getTaskById(taskId);
 
-        isDueDateValid(dueDate);
-        task.setDueDate(dueDate);
+        if(dueDate != null) {
+            isDueDateValid(dueDate);
+            task.setDueDate(dueDate);
+        }
 
         if(completed != null) {
             task.setCompleted(completed);

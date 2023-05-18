@@ -6,10 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/task")
@@ -22,8 +20,14 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTask() {
-        ArrayList<Task> taskList = taskService.getAllTask();
+    public ResponseEntity<List<Task>> getAllTask(
+            @RequestParam(value = "completed", required = false) Boolean completed,
+            @RequestParam(value = "sort", required = false) String sort,
+            @RequestParam(value = "beforeDate", required = false) Date beforeDate,
+            @RequestParam(value = "afterDate", required = false) Date afterDate) {
+
+        TaskFilter taskFilter = TaskFilter.createTaskFilter(completed, sort, beforeDate, afterDate);
+        List<Task> taskList = taskService.getAllTask(taskFilter);
         return ResponseEntity.ok(taskList);
     }
 
