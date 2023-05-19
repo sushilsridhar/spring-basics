@@ -107,16 +107,17 @@ public class TaskService {
             throw new InvalidInputException("Invalid Due Date");
         }
     }
+}
 
-    class TaskNotFoundException extends IllegalStateException {
-        public TaskNotFoundException(int taskId) {
-            super("Task with id " + taskId + " not found");
-        }
+
+class TaskNotFoundException extends IllegalStateException {
+    public TaskNotFoundException(int taskId) {
+        super("Task with id " + taskId + " not found");
     }
+}
 
-    class InvalidInputException extends IllegalArgumentException {
-        public InvalidInputException(String message) {
-            super(message);
-        }
+class InvalidInputException extends IllegalArgumentException {
+    public InvalidInputException(String message) {
+        super(message);
     }
 }

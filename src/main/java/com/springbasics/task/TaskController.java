@@ -2,6 +2,7 @@ package com.springbasics.task;
 
 import com.springbasics.task.dto.CreateTaskDTO;
 import com.springbasics.task.dto.UpdateTaskDTO;
+import com.springbasics.task.exception.TestGlobalException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,13 +56,21 @@ public class TaskController {
         return ResponseEntity.ok().build();
     }
 
-    @ExceptionHandler(TaskService.TaskNotFoundException.class)
-    public ResponseEntity<String> taskNotFoundExceptionHandler(TaskService.TaskNotFoundException e) {
+    /* Exception generated only by this controller is handled here, use @ControllerAdvice for
+    *  globally handling the exceptions
+    */
+    @ExceptionHandler(TaskNotFoundException.class)
+    public ResponseEntity<String> taskNotFoundExceptionHandler(TaskNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
-    @ExceptionHandler(TaskService.InvalidInputException.class)
-    public ResponseEntity<String> invalidInputExceptionHandler(TaskService.InvalidInputException e) {
+    @ExceptionHandler(InvalidInputException.class)
+    public ResponseEntity<String> invalidInputExceptionHandler(InvalidInputException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    @GetMapping("/exceptiontest")
+    public void testExceptionAdvice() {
+        throw new TestGlobalException("test global exception via exception advice");
     }
 }
